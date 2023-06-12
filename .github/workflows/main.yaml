@@ -12,7 +12,7 @@ env:
 jobs:
   builds:
     name: Build APK
-    runs-on: ubuntu-latest
+  runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-java@v1
@@ -23,9 +23,18 @@ jobs:
           flutter-version: ${{env.FLUTTER_VERSION}}
       - run: flutter pub get
       - run: flutter test
+      - name: Install melos  
+        run: dart pub global activate melos ${{env.MELOS_VERSION}}
+
+      - name: Run build_runner
+        run: make sync
+
+      - name: Run Unit Test
+        run: make test
+
+      - name: Check format
+        run: make format
+
+      - name: Run analyze
+        run: make analyze
       - run: flutter build apk --debug --split-per-abi
-      - name: Create a Release APK
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "build/app/outputs/apk/debug/*.apk"
-          token: ${{ secrets.TOKEN }}
